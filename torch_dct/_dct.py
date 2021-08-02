@@ -47,6 +47,7 @@ def dct(x, norm=None):
     v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
 
     Vc = torch.fft.fft(v, 1)
+    print(Vc.shape)
 
     k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
     W_r = torch.cos(k)
@@ -97,6 +98,7 @@ def idct(X, norm=None):
     V_i = V_t_r * W_i + V_t_i * W_r
 
     V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
+    print(V.shape)
 
     v = torch.fft.ifft(V, 1)
     x = v.new_zeros(v.shape)
