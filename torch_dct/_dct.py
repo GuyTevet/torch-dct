@@ -42,14 +42,17 @@ def dct(x, norm=None):
     """
     x_shape = x.shape
     N = x_shape[-1]
+    print('x before [{}]'.format(x.shape))
     x = x.contiguous().view(-1, N)
+    print('x after [{}]'.format(x.shape))
 
     v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
-
+    print('v [{}]'.format(v.shape))
     Vc = torch.fft.fft(v, 1)
-    print(Vc.shape)
+    print('Vc [{}]'.format(Vc.shape))
 
     k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
+    print('k [{}]'.format(k.shape))
     W_r = torch.cos(k)
     W_i = torch.sin(k)
 
