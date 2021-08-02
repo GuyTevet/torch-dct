@@ -13,7 +13,8 @@ def dct1(x):
     x_shape = x.shape
     x = x.view(-1, x_shape[-1])
 
-    return torch.fft.rfft(torch.cat([x, x.flip([1])[:, 1:-1]], dim=1), dim=1)[:, :, 0].view(*x_shape)
+    # return torch.rfft(torch.cat([x, x.flip([1])[:, 1:-1]], dim=1), 1)[:, :, 0].view(*x_shape)
+    return torch.fft.rfft(torch.cat([x, x.flip([1])[:, 1:-1]], dim=1), dim=1).real.view(*x_shape)
 
 
 def idct1(X):
@@ -108,10 +109,12 @@ def idct(X, norm=None):
     V_r = V_t_r * W_r - V_t_i * W_i
     V_i = V_t_r * W_i + V_t_i * W_r
 
-    V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
+    # V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
+    V = torch.complex(real=V_r, imag=V_i) # TODO - avoid copy
     print(V.shape)
 
-    v = torch.fft.ifft(V, dim=1)
+    # v = torch.irfft(V, 1, onesided=False)
+    v = torch.fft.ifft(V)
     x = v.new_zeros(v.shape)
     x[:, ::2] += v[:, :N - (N // 2)]
     x[:, 1::2] += v.flip([1])[:, :N // 2]
