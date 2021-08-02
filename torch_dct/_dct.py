@@ -48,7 +48,14 @@ def dct(x, norm=None):
 
     v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1) # [-1, N]
     print('v [{}]'.format(v.shape))
-    Vc = torch.fft.fft(v, dim=1) # [-1, N]
+
+    # Vc = torch.rfft(v, 1, onesided=False)
+    Vc = torch.fft.fft(v) # [-1, N]
+    # 0.4.1 fft doc - https://pytorch.org/docs/0.4.1/torch.html?highlight=fft#torch.fft
+    # current fft doc - https://pytorch.org/docs/stable/generated/torch.fft.fft.html#torch.fft.fft
+    # Notes:
+    # - rfft onesided=False is eq to fft
+    # - signal_ndim=1 is default (and only choice in current version)
     print('Vc [{}]'.format(Vc.shape))
 
     k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
@@ -56,7 +63,8 @@ def dct(x, norm=None):
     W_r = torch.cos(k)
     W_i = torch.sin(k)
 
-    V = Vc[:, :, 0] * W_r - Vc[:, :, 1] * W_i
+    # V = Vc[:, :, 0] * W_r - Vc[:, :, 1] * W_i # in 0.4.1 they use the last dim to rep real(0) an imaginary(1) parts
+    V = Vc.real * W_r - Vc.imag * W_i
 
     if norm == 'ortho':
         V[:, 0] /= np.sqrt(N) * 2
