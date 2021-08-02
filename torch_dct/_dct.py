@@ -43,12 +43,9 @@ def dct(x, norm=None):
     """
     x_shape = x.shape
     N = x_shape[-1]
-    print('x before [{}]'.format(x.shape))
     x = x.contiguous().view(-1, N) # [-1, N]
-    print('x after [{}]'.format(x.shape))
 
     v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1) # [-1, N]
-    print('v [{}]'.format(v.shape))
 
     # Vc = torch.rfft(v, 1, onesided=False)
     Vc = torch.fft.fft(v) # [-1, N]
@@ -57,10 +54,8 @@ def dct(x, norm=None):
     # Notes:
     # - rfft onesided=False is eq to fft
     # - signal_ndim=1 is default (and only choice in current version)
-    print('Vc [{}]'.format(Vc.shape))
 
     k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
-    print('k [{}]'.format(k.shape))
     W_r = torch.cos(k)
     W_i = torch.sin(k)
 
@@ -111,7 +106,6 @@ def idct(X, norm=None):
 
     # V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
     V = torch.complex(real=V_r, imag=V_i) # TODO - avoid copy
-    print(V.shape)
 
     # v = torch.irfft(V, 1, onesided=False)
     v = torch.fft.ifft(V).real  # assuming real signal
