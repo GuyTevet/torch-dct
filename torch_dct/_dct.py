@@ -114,7 +114,7 @@ def idct(X, norm=None):
     print(V.shape)
 
     # v = torch.irfft(V, 1, onesided=False)
-    v = torch.fft.ifft(V)
+    v = torch.fft.ifft(V).real  # assuming real signal
     x = v.new_zeros(v.shape)
     x[:, ::2] += v[:, :N - (N // 2)]
     x[:, 1::2] += v.flip([1])[:, :N // 2]
