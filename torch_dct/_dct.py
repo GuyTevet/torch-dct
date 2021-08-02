@@ -13,7 +13,7 @@ def dct1(x):
     x_shape = x.shape
     x = x.view(-1, x_shape[-1])
 
-    return torch.fft.rfft(torch.cat([x, x.flip([1])[:, 1:-1]], dim=1), 1)[:, :, 0].view(*x_shape)
+    return torch.fft.rfft(torch.cat([x, x.flip([1])[:, 1:-1]], dim=1), dim=1)[:, :, 0].view(*x_shape)
 
 
 def idct1(X):
@@ -43,12 +43,12 @@ def dct(x, norm=None):
     x_shape = x.shape
     N = x_shape[-1]
     print('x before [{}]'.format(x.shape))
-    x = x.contiguous().view(-1, N)
+    x = x.contiguous().view(-1, N) # [-1, N]
     print('x after [{}]'.format(x.shape))
 
-    v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
+    v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1) # [-1, N]
     print('v [{}]'.format(v.shape))
-    Vc = torch.fft.fft(v, 1)
+    Vc = torch.fft.fft(v, dim=1) # [-1, N]
     print('Vc [{}]'.format(Vc.shape))
 
     k = - torch.arange(N, dtype=x.dtype, device=x.device)[None, :] * np.pi / (2 * N)
@@ -103,7 +103,7 @@ def idct(X, norm=None):
     V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
     print(V.shape)
 
-    v = torch.fft.ifft(V, 1)
+    v = torch.fft.ifft(V, dim=1)
     x = v.new_zeros(v.shape)
     x[:, ::2] += v[:, :N - (N // 2)]
     x[:, 1::2] += v.flip([1])[:, :N // 2]
